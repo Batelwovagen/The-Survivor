@@ -4,14 +4,19 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public GameObject deadExplosion,grenade;
     public float speedX;
-    bool facingRight=true;
+    bool facingRight = true;
     float speed;
     Animator anim;
     Rigidbody2D rb;
     private float dirX;
     private Vector3 localScale;
 
+  
+ 
+
+    // Rigidbody2D myBody;
 
     void Start()
     {
@@ -20,7 +25,7 @@ public class Player : MonoBehaviour
         facingRight = true;
         speedX = 5f;
         localScale = transform.localScale;
-
+       // myBody = this.GetComponent();
 
     }
 
@@ -65,7 +70,6 @@ public class Player : MonoBehaviour
         //hit
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            
             anim.SetBool("isAttacking", true);
         }
         if (Input.GetKeyUp(KeyCode.Space))
@@ -73,8 +77,10 @@ public class Player : MonoBehaviour
             anim.SetBool("isAttacking", false);
         }
 
+        checkIfTimeToSaber();
+
     }
-    private void FixedUpdate()
+        private void FixedUpdate()
     {
         rb.velocity = new Vector2(dirX, rb.velocity.y);
     }
@@ -87,7 +93,7 @@ public class Player : MonoBehaviour
         else if (dirX < 0)
             facingRight = false;
         if (((facingRight) && (localScale.x < 0)) || ((!facingRight) && (localScale.x > 0)))
-            localScale.x = localScale.x * - 1;
+            localScale.x = localScale.x * -1;
 
         transform.localScale = localScale;
     }
@@ -102,4 +108,41 @@ public class Player : MonoBehaviour
     {
         return transform.Find("GroundCheck").GetComponent<GroundCheck>().isGrounded;
     }
+    /*****************/
+
+    void dead()
+    {
+        Instantiate(deadExplosion, transform.position, Quaternion.identity);
+        Destroy(gameObject);
+    }
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("coinn"))
+        {
+            Destroy(other.gameObject);
+            Score.instance.changeScore(1);
+        }
+        if (other.tag == "flame")
+        {
+
+            dead();
+     
+        }
+        if (other.tag == "FrontDetect")
+        {
+            Destroy(this.gameObject);
+        }
+
+    }
+
+
+
+    void checkIfTimeToSaber()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+            Instantiate(grenade, transform.position, Quaternion.identity);
+    }
+
+
+
 }
